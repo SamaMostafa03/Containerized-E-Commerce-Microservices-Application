@@ -27,7 +27,7 @@ public class Product {
     private String imageName;
     private String imageType;
     @Lob
-    @Column(columnDefinition = "BYTEA")
+//    @Column(columnDefinition = "BYTEA")
     private byte[] imageData;
 
     public Product(int id)

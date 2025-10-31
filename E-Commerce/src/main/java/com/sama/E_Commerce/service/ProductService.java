@@ -21,7 +21,7 @@ public class ProductService {
     public Product findProduct(int id){
         return productRepo.findById(id).orElse(null);
     }
-    @Transactional
+//    @Transactional
     public void addOrUpdateProduct(Product product , MultipartFile imageFile) throws IOException {
         product.setImageName(imageFile.getOriginalFilename());
         product.setImageType(imageFile.getContentType());

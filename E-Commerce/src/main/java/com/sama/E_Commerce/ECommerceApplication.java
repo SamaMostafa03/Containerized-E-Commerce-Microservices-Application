@@ -6,7 +6,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication
-@EnableTransactionManagement
+//@EnableTransactionManagement
 @EnableAspectJAutoProxy
 public class ECommerceApplication {
 

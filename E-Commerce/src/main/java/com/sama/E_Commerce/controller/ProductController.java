@@ -2,9 +2,11 @@ package com.sama.E_Commerce.controller;
 
 import com.sama.E_Commerce.model.Product;
 import com.sama.E_Commerce.service.ProductService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,6 +19,14 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+    @GetMapping("csrf-token")
+    public CsrfToken getCsrfToken(HttpServletRequest request){
+        return (CsrfToken) request.getAttribute("_csrf");
+    }
+    @GetMapping("session-id")
+    public String getSessionId(HttpServletRequest request){
+        return request.getSession().getId();
+    }
     @GetMapping("/view-all")
     public ResponseEntity<List<Product>> viewAllProducts(){
         return new ResponseEntity<>(productService.viewAllProducts() , HttpStatus.OK);
