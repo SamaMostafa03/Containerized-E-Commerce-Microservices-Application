@@ -1,5 +1,6 @@
 package com.sama.E_Commerce.config;
 
+import com.sama.E_Commerce.service.CustomOAuth2UserService;
 import com.sama.E_Commerce.service.UserPrincipleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +24,10 @@ public class SecurityConfig {
 
     @Autowired
     private JwtFilter jwtFilter;
+    @Autowired
+    private OAuth2SuccessHandler oAuth2SuccessHandler;
+    @Autowired
+    private CustomOAuth2UserService customOAuth2UserService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -39,9 +44,12 @@ public class SecurityConfig {
         http.
                 csrf(customizer -> customizer.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/register" , "login").permitAll()
+                        .requestMatchers("/api/auth/register", "/api/auth/login", "/oauth2/**", "/api/auth/success").permitAll()
                         .anyRequest().authenticated())
-                .httpBasic(Customizer.withDefaults())
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                        .successHandler(oAuth2SuccessHandler)
+                )
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

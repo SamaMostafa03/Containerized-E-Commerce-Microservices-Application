@@ -15,7 +15,17 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
     public void save(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
         userRepo.save(user);
+    }
+
+    public boolean existsByEmail(String email) {
+        return userRepo.existsByEmail(email);
+    }
+
+    public User findByEmail(String email) {
+        return userRepo.findByEmail(email);
     }
 }

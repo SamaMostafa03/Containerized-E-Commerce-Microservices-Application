@@ -9,11 +9,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/api/auth")
 public class UserController {
     @Autowired
     private UserService userService;
@@ -22,22 +21,31 @@ public class UserController {
     @Autowired
     AuthenticationManager authenticationManager;
 
-    @PostMapping("register")
-    public ResponseEntity<User> register(@RequestBody User user){
+    @PostMapping("/register")
+    public ResponseEntity<String> register(@RequestBody User user) {
+        if (userService.existsByEmail(user.getEmail())) {
+            return new ResponseEntity<>("Email already registered", HttpStatus.BAD_REQUEST);
+        }
         userService.save(user);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>("User registered successfully", HttpStatus.CREATED);
     }
 
-    @PostMapping("login")
-    public ResponseEntity<String> login(@RequestBody User user){
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody User user) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword())
+        );
 
-        Authentication authentication = authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
-
-        if(authentication.isAuthenticated())
-            return new ResponseEntity<>(jwtService.generateToken(user.getUsername()) , HttpStatus.OK);
-        else
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-
+        if (authentication.isAuthenticated()) {
+            String token = jwtService.generateToken(user.getEmail());
+            return ResponseEntity.ok(token);
+        } else {
+            return new ResponseEntity<>("Invalid credentials", HttpStatus.UNAUTHORIZED);
+        }
     }
+    @GetMapping("/success")
+    public ResponseEntity<String> success(@RequestParam("token") String token) {
+        return ResponseEntity.ok("Login successful! Your JWT token: " + token);
+    }
+
 }
